@@ -1,4 +1,4 @@
-package com.nullendpoint;
+package com.nullendpoint.xref;
 
 import org.apache.camel.Body;
 import org.apache.camel.Header;
@@ -68,4 +68,5 @@ public class XrefOperationImpl implements XrefOperation {
                                    @Body Relation relation) throws EntityNotFoundException {
         return xrefOperation.updateRelation(entitySet, tenant, relation);
     }
+
 }

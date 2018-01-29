@@ -5,7 +5,7 @@
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="myProgrammaticConfiguration" class="com.nullendpoint.EhcacheSpringConfigurationFactory">
+    <bean id="myProgrammaticConfiguration" class="com.nullendpoint.xref.EhcacheSpringConfigurationFactory">
         <property name="keyType" value="java.lang.String"/>
         <property name="valueType" value="java.lang.String"/>
     </bean>

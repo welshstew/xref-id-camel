@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.nullendpoint;
+package com.nullendpoint.xref;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -51,8 +51,6 @@ import javax.sql.DataSource;
 @ImportResource({"classpath:spring/camel-context.xml"})
 public class Application extends SpringBootServletInitializer {
 
-
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -67,7 +65,7 @@ public class Application extends SpringBootServletInitializer {
     @Bean(name = "json-jackson")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public JacksonDataFormat jacksonDataFormat() {
-        return new JacksonDataFormat(new ObjectMapper(), Relation.class);
+        return new JacksonDataFormat(new ObjectMapper(), Relation.class, SimpleResponse.class);
     }
 
 //    @Bean
@@ -79,7 +77,7 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     ServletRegistrationBean servletRegistrationBean() {
         ServletRegistrationBean servlet = new ServletRegistrationBean(
-            new CamelHttpTransportServlet(), "/camel-rest-sql/*");
+            new CamelHttpTransportServlet(), "/*");
         servlet.setName("CamelServlet");
         return servlet;
     }
@@ -92,7 +90,7 @@ public class Application extends SpringBootServletInitializer {
 
     @Bean
     XrefOperationImpl xrefOperationImpl(){
-        XrefOperationImpl xrefOperationImpl = new XrefOperationImpl(jdbcTemplate(),producerTemplate());
+            XrefOperationImpl xrefOperationImpl = new XrefOperationImpl(jdbcTemplate(),producerTemplate());
         return xrefOperationImpl;
     }
 
@@ -107,7 +105,7 @@ public class Application extends SpringBootServletInitializer {
         @Override
         public void configure() {
             restConfiguration()
-                .contextPath("/camel-rest-sql").apiContextPath("/api-doc")
+                .contextPath("/").apiContextPath("/api-doc")
                     .apiProperty("api.title", "Camel REST API")
                     .apiProperty("api.version", "1.0")
                     .apiProperty("cors", "true")
@@ -115,23 +113,28 @@ public class Application extends SpringBootServletInitializer {
                 .component("servlet")
                 .bindingMode(RestBindingMode.json);
 
-            rest("/books").description("Books REST service")
-                .get("/").description("The list of all the books")
-                    .route().routeId("books-api")
-                    .to("sql:select distinct description from orders?" +
-                        "dataSource=dataSource&" +
-                        "outputClass=com.nullendpoint.Book")
-                    .endRest()
-                .get("order/{id}").description("Details of an order by id")
-                    .route().routeId("order-api")
-                    .to("sql:select * from orders where id = :#${header.id}?" +
-                        "dataSource=dataSource&outputType=SelectOne&" +
-                        "outputClass=com.nullendpoint.Order");
+            onException(EntityNotFoundException.class)
+                    .handled(true)
+                    .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(404))
+                    .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+                    .process(new Processor() {
+                        @Override
+                        public void process(Exchange exchange) throws Exception {
+                            exchange.getIn().setBody(new SimpleResponse("Could not find Relation with the provided Identifiers.  Perhaps provide queryString params..?"));
+                        }
+                    });
 
             rest("/xref").description("Identity Xref Service")
                     .get("/").description("simple hello i'm alive")
-                    .route().routeId("xref-api")
-                    .setBody(constant("hello i'm alive"))
+                        .route().routeId("xref-api")
+                        .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                        .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+                        .process(new Processor() {
+                            @Override
+                            public void process(Exchange exchange) throws Exception {
+                                exchange.getIn().setBody(new SimpleResponse("hello i'm alive"));
+                            }
+                        })
                     .endRest()
                     .get("/{tenant}/{entitySet}")
                         .param().name("endpoint").type(RestParamType.query).description("endpoint name").endParam()
@@ -168,12 +171,11 @@ public class Application extends SpringBootServletInitializer {
         @Override
         public void configure() {
 
-
             from("direct:saveToCache").setExchangePattern(ExchangePattern.InOut)
                     .setHeader(EhcacheConstants.ACTION, constant(EhcacheConstants.ACTION_PUT))
                     .marshal().json(JsonLibrary.Jackson).convertBodyTo(String.class)
                     .setHeader(EhcacheConstants.VALUE, body())
-                    .to("log:mylog?showAll=true")
+                    .to("log:com.nullendpoint.xref?showAll=true")
                     .toD("ehcache://${header.CamelEhcacheName}?configuration=#myProgrammaticConfiguration&keyType=java.lang.String&valueType=java.lang.String");
 
             from("direct:getFromCache").setExchangePattern(ExchangePattern.InOut)

@@ -1,12 +1,15 @@
-package com.nullendpoint;
+package com.nullendpoint.xref;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Relation {
 
+
 	private Integer id;
-    private String commonID;
+    private String commonId;
     private List<Reference> references;
 
     public Integer getId() {
@@ -18,27 +21,27 @@ public class Relation {
 	}
 
 	/**
-     * Gets the value of the commonID property.
+     * Gets the value of the commonId property.
      *
      * @return
      *     possible object is
      *     {@link String }
      *
      */
-    public String getCommonID() {
-        return commonID;
+    public String getCommonId() {
+        return commonId;
     }
 
     /**
-     * Sets the value of the commonID property.
+     * Sets the value of the commonId property.
      *
      * @param value
      *     allowed object is
      *     {@link String }
      *
      */
-    public void setCommonID(String value) {
-        this.commonID = value;
+    public void setCommonId(String value) {
+        this.commonId = value;
     }
 
     /**
@@ -92,7 +95,7 @@ public class Relation {
      * 
      */
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public static class Reference {
 
     	private Integer id;

@@ -7,8 +7,8 @@
   <artifactId>xref-id-camel</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>Fabric8 :: Quickstarts :: Spring-Boot :: Camel REST / SQL</name>
-  <description>Spring Boot example running a Camel REST route connecting to a SQL database</description>
+  <name>Camel Identity Cross Referencing Service (XRef-id)</name>
+  <description>An identity cross referencing service for camel integrations</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -90,12 +90,12 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <scope>runtime</scope>
     </dependency>
+
     <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <scope>runtime</scope>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <!-- testing -->

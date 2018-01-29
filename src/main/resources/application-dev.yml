@@ -13,6 +13,12 @@ endpoints:
   health:
     enabled: true
 
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.apache.camel: DEBUG
+    com.nullendpoint: DEBUG
+
 spring:
   # Spring JDBC configuration
   datasource:
@@ -20,9 +26,3 @@ spring:
     url:      jdbc:mysql://localhost:3306/xref
     username: root
     password: sqladmin1!
-
-# The application configuration properties
-quickstart:
-  generateOrderPeriod: 60s
-  processOrderPeriod: 60s
-

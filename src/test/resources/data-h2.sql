@@ -1,0 +1,1 @@
+INSERT INTO xref.entitytype (entitytype, tenant) VALUES ('student', 'dec');

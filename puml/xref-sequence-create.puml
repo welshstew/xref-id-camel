@@ -1,0 +1,26 @@
+@startuml
+systemFoo -> Integration: endpoint:systemFoo id:foo123 entity:person
+activate Integration
+Integration -> XrefId: Do we have an existing Id in the system? \nGET "/xref/companya/person?endpoint=systemFoo&id=foo123"
+note left: the GET is a redundant step, can actually \n just go and POST in the next step (saves \n a HTTP call)
+activate XrefId
+XrefId -> XrefId: lookup (not found)
+XrefId -> Integration : No existing Id Found \nHTTP 404 not found
+deactivate XrefId
+Integration -> XrefId: Create a new Id \nPOST "/xref/companya/person" \n {"references": [{"endpoint": "systemFoo", "endpointId": "foo123"} ] }
+activate XrefId
+XrefId -> XrefId: createRelation
+XrefId -> Integration: HTTP 200 OK \n {"id": 9, "commonId": "f1e8dbd5-ab30-46e5-9503-6c2c105d45ef", \n "references": [{"id": 9, "endpoint": "systemFoo", "endpointId": "foo123"} ] }
+deactivate XrefId
+Integration -> systemBar: createPerson()
+activate systemBar
+systemBar -> systemBar: createPerson()
+systemBar -> Integration: HTTP 200 OK createPerson() \n { "id" : "bar123" }
+deactivate systemBar
+Integration -> XrefId: PUT "/xref/companya/person/\nf1e8dbd5-ab30-46e5-9503-6c2c105d45ef/systemBar/bar123"
+activate XrefId
+XrefId -> XrefId: createRelation
+XrefId -> Integration: HTTP 200 OK \n {"id": 9, "commonId": "f1e8dbd5-ab30-46e5-9503-6c2c105d45ef", \n"references": [\n{"id": 9, "endpoint": "systemFoo", "endpointId": "foo123"}, \n{"id": 11, "endpoint": "systemBar", "endpointId": "bar123"} \n] }
+deactivate XrefId
+deactivate Integration
+@enduml

@@ -5,3 +5,21 @@ camel:
 quickstart:
   generateOrderPeriod: 1s
   processOrderPeriod: 3s
+
+spring:
+  # Spring JDBC configuration
+  datasource:
+    #url:      jdbc:mysql://${${mysql.service.name}.service.host}:${${mysql.service.name}.service.port}/${mysql.service.database}
+    platform: h2
+    url:      jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+
+
+
+
+logging:
+  level:
+    org.springframework: DEBUG
+    org.apache.camel: DEBUG
+    com.nullendpoint: DEBUG

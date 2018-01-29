@@ -1,4 +1,4 @@
-package com.nullendpoint;
+package com.nullendpoint.xref;
 
 public class EntityNotFoundException extends Exception {
 

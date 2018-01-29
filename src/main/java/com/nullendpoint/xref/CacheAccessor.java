@@ -1,4 +1,4 @@
-package com.nullendpoint;
+package com.nullendpoint.xref;
 
 import com.google.common.collect.ImmutableMap;
 import net.sf.ehcache.Cache;
