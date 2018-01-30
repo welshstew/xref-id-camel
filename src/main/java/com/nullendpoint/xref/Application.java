@@ -48,7 +48,6 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 
 @SpringBootApplication
-@ImportResource({"classpath:spring/camel-context.xml"})
 public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
@@ -92,6 +91,14 @@ public class Application extends SpringBootServletInitializer {
     XrefOperationImpl xrefOperationImpl(){
             XrefOperationImpl xrefOperationImpl = new XrefOperationImpl(jdbcTemplate(),producerTemplate());
         return xrefOperationImpl;
+    }
+
+    @Bean(name = "myProgrammaticConfiguration")
+    EhcacheSpringConfigurationFactory myProgrammaticConfiguration(){
+        EhcacheSpringConfigurationFactory configurationFactory =  new EhcacheSpringConfigurationFactory();
+        configurationFactory.setKeyType(String.class);
+        configurationFactory.setValueType(String.class);
+        return configurationFactory;
     }
 
     @Bean

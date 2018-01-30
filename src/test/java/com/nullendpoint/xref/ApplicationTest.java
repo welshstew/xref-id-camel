@@ -18,6 +18,7 @@ package com.nullendpoint.xref;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.NotifyBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,18 +27,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.util.UriUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleToIntFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTest {
 
@@ -45,7 +52,50 @@ public class ApplicationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
+    private ProducerTemplate template;
+
+    @Autowired
     private CamelContext camelContext;
+
+    @Test
+    public void createTenantAndIdTest(){
+
+        Relation r = RelationFactory.createRelation();
+        r.getReferences().add(RelationFactory.createRelationReference("sso", "redfoo"));
+
+        Relation relResult = restTemplate.postForObject("/xref/redhat/person", r, Relation.class);
+
+        assertThat(relResult.getCommonId()).isNotNull();
+        assertThat(relResult.getReferences().get(0).getEndpoint()).isEqualToIgnoringCase("sso");
+        assertThat(relResult.getReferences().get(0).getEndpointId()).isEqualToIgnoringCase("redfoo");
+
+        //try posting the same thing again...
+        Relation relResult2 = restTemplate.postForObject("/xref/redhat/person", r, Relation.class);
+        //ensure the commonId is the same
+        assertThat(relResult.getCommonId()).isEqualToIgnoringCase(relResult2.getCommonId());
+
+    }
+
+    @Test
+    public void createMultipleIds() throws UnsupportedEncodingException {
+
+        Relation r = RelationFactory.createRelation();
+        r.getReferences().add(RelationFactory.createRelationReference("sso", "redfoo"));
+
+        Relation relResult = restTemplate.postForObject("/xref/redhat/person", r, Relation.class);
+
+        //try posting the same thing again...
+        String resourceUrl = "/xref/redhat/person/" + relResult.getCommonId() + UriUtils.encodePath("/ActiveDirectory/redfoo~1", "UTF-8");
+        HttpEntity requestUpdate = new HttpEntity<>(null, null);
+        restTemplate.exchange(resourceUrl, HttpMethod.PUT, requestUpdate, Void.class);
+
+        //GET http://localhost:8080/xref/companya/person/f1e8dbd5-ab30-46e5-9503-6c2c105d45ef
+        ResponseEntity<Relation> relResult2 = restTemplate.getForEntity("/xref/redhat/person/" + relResult.getCommonId(), Relation.class);
+        //ensure the commonId is the same
+        assertThat(relResult.getCommonId()).isEqualToIgnoringCase(relResult2.getBody().getCommonId());
+        assertThat(relResult2.getBody().getReferences().size()).isEqualTo(2);
+
+    }
 
 //    @Test
 //    public void newOrderTest() {
@@ -79,39 +129,39 @@ public class ApplicationTest {
 //        assertThat(books).element(1)
 //            .hasFieldOrPropertyWithValue("description", "Camel in Action");
 //    }
-
-    @Test
-    public void testText() throws InterruptedException, JsonProcessingException {
-
-
-        Object quantity = new Integer(12);
-
-        if(quantity == null){
-            System.out.println("null!");
-        }else if(quantity instanceof Number){
-            System.out.println(((Number) quantity).doubleValue());
-        }else if(quantity instanceof String){
-            if("".equals(quantity)) {
-                System.out.println("null!");
-            }else{
-                Double myDouble = Double.parseDouble((String)quantity);
-                System.out.println(myDouble.toString());
-            }
-        }
-
-
-        if(quantity == null){
-            System.out.println("null!");
-        }else if(quantity instanceof Double){
-            System.out.println(((Double) quantity));
-        }else if(quantity instanceof String){
-            if("".equals(quantity)) {
-                System.out.println("null!");
-            }else{
-                Double myDouble = Double.parseDouble((String)quantity);
-                System.out.println(myDouble.toString());
-            }
-        }
+//
+//    @Test
+//    public void testText() throws InterruptedException, JsonProcessingException {
+//
+//
+//        Object quantity = new Integer(12);
+//
+//        if(quantity == null){
+//            System.out.println("null!");
+//        }else if(quantity instanceof Number){
+//            System.out.println(((Number) quantity).doubleValue());
+//        }else if(quantity instanceof String){
+//            if("".equals(quantity)) {
+//                System.out.println("null!");
+//            }else{
+//                Double myDouble = Double.parseDouble((String)quantity);
+//                System.out.println(myDouble.toString());
+//            }
+//        }
+//
+//
+//        if(quantity == null){
+//            System.out.println("null!");
+//        }else if(quantity instanceof Double){
+//            System.out.println(((Double) quantity));
+//        }else if(quantity instanceof String){
+//            if("".equals(quantity)) {
+//                System.out.println("null!");
+//            }else{
+//                Double myDouble = Double.parseDouble((String)quantity);
+//                System.out.println(myDouble.toString());
+//            }
+//        }
 
 
 //        TestObject to = new TestObject();
@@ -151,7 +201,7 @@ public class ApplicationTest {
 //        String result = restTemplate.getForObject("/camel/xref", String.class);
 ////        assertThat(stringResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 //        assertThat(result).isEqualToIgnoringCase("{ \"status\":\"hello i'm alive\"}");
-
-    }
+//
+//    }
 
 }

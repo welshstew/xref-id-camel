@@ -2,10 +2,6 @@ camel:
   springboot:
     name: CamelRestSql
 
-quickstart:
-  generateOrderPeriod: 1s
-  processOrderPeriod: 3s
-
 spring:
   # Spring JDBC configuration
   datasource:
@@ -14,8 +10,6 @@ spring:
     url:      jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
-
-
 
 
 logging:
