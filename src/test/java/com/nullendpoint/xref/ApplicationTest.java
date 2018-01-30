@@ -97,6 +97,38 @@ public class ApplicationTest {
 
     }
 
+    @Test
+    public void testRemovalOfAnId() throws UnsupportedEncodingException {
+
+        Relation r = RelationFactory.createRelation();
+        r.getReferences().add(RelationFactory.createRelationReference("sso", "redfoo"));
+        r.getReferences().add(RelationFactory.createRelationReference("dfs", "12334142424"));
+
+        Relation relResult = restTemplate.postForObject("/xref/redhat/person", r, Relation.class);
+
+        //try posting the same thing again...
+        String resourceUrl = "/xref/redhat/person/" + relResult.getCommonId() + UriUtils.encodePath("/ActiveDirectory/redfoo~1", "UTF-8");
+        HttpEntity requestUpdate = new HttpEntity<>(null, null);
+        restTemplate.exchange(resourceUrl, HttpMethod.PUT, requestUpdate, Void.class);
+
+        //GET http://localhost:8080/xref/companya/person/f1e8dbd5-ab30-46e5-9503-6c2c105d45ef
+        ResponseEntity<Relation> relResult2 = restTemplate.getForEntity("/xref/redhat/person/" + relResult.getCommonId(), Relation.class);
+        //ensure the commonId is the same
+        assertThat(relResult.getCommonId()).isEqualToIgnoringCase(relResult2.getBody().getCommonId());
+        assertThat(relResult2.getBody().getReferences().size()).isEqualTo(3);
+
+        //now remove an id
+        String deleteResourceUrl = "/xref/redhat/person/" + relResult.getCommonId() + UriUtils.encodePath("/ActiveDirectory/redfoo~1", "UTF-8");
+        HttpEntity requestDelete = new HttpEntity<>(null, null);
+        ResponseEntity<Relation> deleteResponse = restTemplate.exchange(deleteResourceUrl, HttpMethod.DELETE, requestDelete, Relation.class);
+        assertThat(deleteResponse.getStatusCodeValue()).isEqualTo(200);
+        assertThat(relResult.getCommonId()).isEqualToIgnoringCase(deleteResponse.getBody().getCommonId());
+        assertThat(deleteResponse.getBody().getReferences().size()).isEqualTo(2);
+
+
+
+    }
+
 //    @Test
 //    public void newOrderTest() {
 //        // Wait for maximum 5s until the first order gets inserted and processed

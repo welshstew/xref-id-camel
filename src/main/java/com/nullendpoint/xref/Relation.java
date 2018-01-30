@@ -9,7 +9,6 @@ import java.util.List;
 public class Relation {
 
 
-    @JsonIgnore
 	private Integer id;
 
     private String commonId;
@@ -101,18 +100,15 @@ public class Relation {
 @JsonIgnoreProperties(ignoreUnknown = true)
 public static class Reference {
 
-        @JsonIgnore
     	private Integer id;
 
         private String endpoint;
         private String endpointId;
 
-        @JsonIgnore
         public Integer getId() {
 			return id;
 		}
 
-        @JsonIgnore
 		public void setId(Integer id) {
 			this.id = id;
 		}

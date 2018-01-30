@@ -14,6 +14,6 @@ spring:
 
 logging:
   level:
-    org.springframework: DEBUG
+    org.springframework: INFO
     org.apache.camel: DEBUG
     com.nullendpoint: DEBUG
