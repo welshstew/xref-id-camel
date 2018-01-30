@@ -1,4 +1,5 @@
 package com.nullendpoint.xref;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
@@ -8,7 +9,9 @@ import java.util.List;
 public class Relation {
 
 
+    @JsonIgnore
 	private Integer id;
+
     private String commonId;
     private List<Reference> references;
 
@@ -98,15 +101,18 @@ public class Relation {
 @JsonIgnoreProperties(ignoreUnknown = true)
 public static class Reference {
 
+        @JsonIgnore
     	private Integer id;
+
         private String endpoint;
         private String endpointId;
 
-
+        @JsonIgnore
         public Integer getId() {
 			return id;
 		}
 
+        @JsonIgnore
 		public void setId(Integer id) {
 			this.id = id;
 		}
