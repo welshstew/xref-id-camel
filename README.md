@@ -7,10 +7,12 @@ A simple cross-referencing service for storing ids across different systems.
   "commonID": "ace664a0-1d28-412a-9ea5-0bbf5739f4ce",
   "references": [
     {
+      "id": 1,  
       "endpoint": "idm",
       "endpointId": "test.user"
     },
     {
+      "id" : 2, 
       "endpoint": "doie",
       "endpointId": "22311415"
     }
@@ -37,9 +39,4 @@ When a system no longer has an entity, the reference to that entity in the XRef 
 
 ### TODO:
 
-- Documentation: Create sample flow diagrams
-- Documentation: Explain flow
-- JSONView for the Jackson output (no db ids) - done.
 - Run on Openshift (template)
-- Create H2 version to run unit tests against.
-- Create sample scenario in unit test
